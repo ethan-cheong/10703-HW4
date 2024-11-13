@@ -147,7 +147,6 @@ class MPC:
             self.env.set_state(state)
             next_state, _, _, _ = self.env.step(action)
             result.append(next_state)
-        print(result)
         return result
 
     def train(self, obs_trajs, acs_trajs, rews_trajs, num_train_itrs=5):
