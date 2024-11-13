@@ -94,17 +94,18 @@ class PENN(nn.Module):
 
         num_samples = inputs.shape[0] 
 
-        for i in range(num_train_itrs):
-            print(f"Train iter {i} of {num_train_itrs}:")
-            for n in range(self.num_nets):
-                # sample minibatch of size B from D
-                indices = torch.randint(0, num_samples, (batch_size,))
-                batch_inputs = inputs[indices].to(self.device)
-                batch_targets = targets[indices].to(self.device)
-                self.opt.zero_grad()
-                output = self.forward(batch_inputs)[n]
-                mean, logvar = self.get_output(output)
-                loss = self.get_loss(batch_targets, mean, logvar)
-                loss.backward()
-                self.opt.step()
-                print(f"Train model {n} of {self.num_nets}, Loss: {loss.item()}")
+        # for i in range(num_train_itrs):
+        #     print(f"Train iter {i} of {num_train_itrs}:")
+        #     for n in range(self.num_nets):
+        #         # sample minibatch of size B from D
+        #         indices = torch.randint(0, num_samples, (batch_size,))
+        #         batch_inputs = inputs[indices].to(self.device)
+        #         batch_targets = targets[indices].to(self.device)
+        #         self.opt.zero_grad()
+        #         output = self.forward(batch_inputs)[n]
+        #         mean, logvar = self.get_output(output)
+        #         loss = self.get_loss(batch_targets, mean, logvar)
+        #         loss.backward()
+        #         self.opt.step()
+        #         print(f"Train model {n} of {self.num_nets}, Loss: {loss.item()}")
+        raise NotImplementedError
