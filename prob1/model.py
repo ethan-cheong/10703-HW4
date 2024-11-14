@@ -53,6 +53,7 @@ class PENN(nn.Module):
         Return:
           mean and log variance
         """
+        # print(f"Passed to get_output:{output}")
         mean = output[:, 0:self.state_dim]
         raw_v = output[:, self.state_dim:]
         logvar = self.max_logvar - nn.functional.softplus(self.max_logvar - raw_v)
@@ -90,22 +91,26 @@ class PENN(nn.Module):
             List containing the average loss of all the networks at each train iteration
 
         """
+        inputs = torch.tensor(inputs, dtype=torch.float32).to(self.device)
+        targets = torch.tensor(targets, dtype=torch.float32).to(self.device)
         assert inputs.shape[0] == targets.shape[0]
 
         num_samples = inputs.shape[0] 
+        losses = []
 
-        # for i in range(num_train_itrs):
-        #     print(f"Train iter {i} of {num_train_itrs}:")
-        #     for n in range(self.num_nets):
-        #         # sample minibatch of size B from D
-        #         indices = torch.randint(0, num_samples, (batch_size,))
-        #         batch_inputs = inputs[indices].to(self.device)
-        #         batch_targets = targets[indices].to(self.device)
-        #         self.opt.zero_grad()
-        #         output = self.forward(batch_inputs)[n]
-        #         mean, logvar = self.get_output(output)
-        #         loss = self.get_loss(batch_targets, mean, logvar)
-        #         loss.backward()
-        #         self.opt.step()
-        #         print(f"Train model {n} of {self.num_nets}, Loss: {loss.item()}")
-        raise NotImplementedError
+        for i in range(num_train_itrs):
+            print(f"Train iter {i} of {num_train_itrs}:")
+            for n in range(self.num_nets):
+                # sample minibatch of size B from D
+                indices = torch.randint(0, num_samples, (batch_size,))
+                batch_inputs = inputs[indices]
+                batch_targets = targets[indices]
+                self.opt.zero_grad()
+                mean, logvar = self.forward(batch_inputs)[n]
+                loss = self.get_loss(batch_targets, mean, logvar)
+                loss.backward()
+                self.opt.step()
+                print(f"Train model {n} of {self.num_nets}, Loss: {loss.item()}")
+                losses.append(loss.item())
+        return losses
+        # raise NotImplementedError

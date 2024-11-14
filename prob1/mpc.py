@@ -134,19 +134,25 @@ class MPC:
             :param states  : [self.popsize * self.num_particles, self.state_dim]
             :param actions : [self.popsize, self.action_dim]
         """
-        # TODO: write your code here
+        actions = np.repeat(actions, self.num_particles, axis=0)
+        
+        # Concatenate states and actions along the last axis (axis 1)
+        inputs = np.concatenate([states, actions], axis=1)
+        network = np.random.randint(self.num_nets) # choose network randomly
+        mean, logvar = self.model(inputs)[network]
+        mean = mean.detach().cpu().numpy()
+        logvar = logvar.detach().cpu().numpy()
+        delta = np.random.normal(loc=mean, scale=np.exp(logvar))
+        return delta + states
+
         # REMEMBER: model prediction is delta   
         # Next state = delta sampled from model prediction + CURRENT state!
-
-        raise NotImplementedError
 
     def predict_next_state_gt(self, states, actions):
         """ Given a list of state action pairs, use the ground truth dynamics to predict the next state"""
         result = []
         for state, action in zip(states, actions):
-            self.env.set_state(state)
-            next_state, _, _, _ = self.env.step(action)
-            result.append(next_state)
+            result.append(self.env.get_nxt_state(state,action))
         return result
 
     def train(self, obs_trajs, acs_trajs, rews_trajs, num_train_itrs=5):
